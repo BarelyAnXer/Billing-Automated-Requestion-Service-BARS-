@@ -35,7 +35,8 @@ router.post('/upload', upload.single(`upload`), async (req, res) => {
         { encoding: 'utf-8' })
 
       if (data.trim().length === 0) {
-        return res.status(400).send('No request(s) to read from the input file')
+        res.status(400).
+        send({ ERROR: 'No request(s) to read from the input file.' })
       } else {
         let records = []
 
@@ -52,18 +53,21 @@ router.post('/upload', upload.single(`upload`), async (req, res) => {
           console.log(billingCycle, startDate, endDate, 'asd')
 
           if (parseInt(billingCycle) < 1 || parseInt(billingCycle) > 12) {
-            return res.status(400).
-            send(('ERROR: Billing Cycle not on range at row ' + (i + 1)))
+            return res.send({
+              ERROR: 'Billing Cycle not on range at row ' + (i + 1) + '.',
+            })
           }
 
           if (!Date.parse(startDate)) {
-            return res.status(400).
-            send(('ERROR: Invalid Start Date format at row ' + (i + 1)))
+            return res.send({
+              ERROR: 'Invalid Start Date format at row ' + (i + 1) + '.',
+            })
           }
 
           if (!Date.parse(endDate)) {
-            return res.status(400).
-            send(('ERROR: Invalid End Date format at row ' + (i + 1)))
+            return res.send({
+              ERROR: 'Invalid End Date format at row ' + (i + 1) + '.',
+            })
           }
 
           let startMM = parseInt(startDate.split('/')[0])
@@ -83,11 +87,21 @@ router.post('/upload', upload.single(`upload`), async (req, res) => {
 
           if (temp === null) {
           } else {
-            records.push(temp)
+            let output = {
+              '_id': temp._id,
+              'billing_cycle': temp.billing_cycle,
+              'start_date': temp.start_date,
+              'end_date': temp.end_date,
+              'amount': temp.amount,
+              'account_name': temp.account.account_name,
+              'first_name': temp.account.customer.first_name,
+              'last_name': temp.account.customer.last_name,
+            }
+            records.push(output)
           }
         }
         if (records.length === 0) {
-          res.send('No Record Found!')
+          return res.status(400).send({ MESSAGE: 'No Record Found' })
         } else {
           res.send(records)
         }
@@ -104,7 +118,8 @@ router.post('/upload', upload.single(`upload`), async (req, res) => {
       console.log(data)
 
       if (data === '') {
-        return res.status(400).send('No request(s) to read from the input file')
+        res.status(400).
+        send({ ERROR: 'No request(s) to read from the input file.' })
       } else {
 
         let records = []
@@ -116,17 +131,20 @@ router.post('/upload', upload.single(`upload`), async (req, res) => {
           let endDate = line.substring(10, 18)
 
           if (startDate.replace(/ +/g, '').length !== 8) {
-            return res.status(400).
-            send(('ERROR: Invalid Start Date format at row ' + (i + 1)))
+            return res.send({
+              ERROR: 'Invalid Start Date format at row ' + (i + 1) + '.',
+            })
           }
           if (endDate.replace(/ +/g, '').length !== 8) {
-            return res.status(400).
-            send(('ERROR: Invalid End Date format at row ' + (i + 1)))
+            return res.send({
+              ERROR: 'Invalid End Date format at row ' + (i + 1) + '.',
+            })
           }
 
           if (billingCycle < 1 || billingCycle > 12) {
-            return res.status(400).
-            send(('ERROR: Billing Cycle not on range at row ' + (i + 1)))
+            return res.send({
+              ERROR: 'Billing Cycle not on range at row ' + (i + 1) + '.',
+            })
           }
 
           let startMM = parseInt(startDate.substring(0, 2))
@@ -143,13 +161,24 @@ router.post('/upload', upload.single(`upload`), async (req, res) => {
               8).toString(),
             end_date: new Date(endYYYY, endMM, endDD, 8).toString(),
           })
+
           if (temp === null) {
           } else {
-            records.push(temp)
+            let output = {
+              '_id': temp._id,
+              'billing_cycle': temp.billing_cycle,
+              'start_date': temp.start_date,
+              'end_date': temp.end_date,
+              'amount': temp.amount,
+              'account_name': temp.account.account_name,
+              'first_name': temp.account.customer.first_name,
+              'last_name': temp.account.customer.last_name,
+            }
+            records.push(output)
           }
         }
         if (records.length === 0) {
-          res.send('No Record Found!')
+          return res.status(400).send({ MESSAGE: 'No Record Found' })
         } else {
           res.send(records)
         }
@@ -157,7 +186,7 @@ router.post('/upload', upload.single(`upload`), async (req, res) => {
     }
   }
   , (error, req, res, next) => {
-    res.status(400).send({ error: error.message })
+    res.status(400).send({ ERROR: error.message })
   },
 )
 

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const Billing = require('../Model/billingmodel')
+// const Billing = require('../Model/billingmodel')
 const connectionUrl = 'mongodb://127.0.0.1:27017/'
 const databaseName = 'bars_db'
 
