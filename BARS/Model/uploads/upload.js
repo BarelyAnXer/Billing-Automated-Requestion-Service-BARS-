@@ -3,6 +3,7 @@ const multer = require('multer')
 const path = require('path')
 const fs = require('fs')
 const Billing = require('../billingmodel')
+const e = require('express')
 
 const router = express.Router()
 
@@ -28,21 +29,25 @@ const upload = multer({
 })
 
 router.post('/upload', upload.single(`upload`), async (req, res) => {
+
     let fileName = req.file.originalname
     if (fileName.includes('.csv')) {
+
+      console.log('=====> Filepath: ' + req.file.originalname)
+      console.log('==> INSIDE TXT PROCESSING <==')
+      console.log('==> Processing Request with three parameters')
 
       let data = fs.readFileSync(`./uploads/${fileName}`,
         { encoding: 'utf-8' })
 
       if (data.trim().length === 0) {
+        console.log({ ERROR: 'No request(s) to read from the input file.' })
         res.status(400).
         send({ ERROR: 'No request(s) to read from the input file.' })
       } else {
         let records = []
 
         let filtered = data.split('\r\n').filter(item => item)
-        console.log(filtered)
-        console.log(filtered.length)
 
         for (let i = 0; i < filtered.length; i++) {
 
@@ -50,21 +55,30 @@ router.post('/upload', upload.single(`upload`), async (req, res) => {
           let startDate = filtered[i].split(',')[1]
           let endDate = filtered[i].split(',')[2]
 
-          console.log(billingCycle, startDate, endDate, 'asd')
+          console.log([billingCycle, startDate, endDate])
 
           if (parseInt(billingCycle) < 1 || parseInt(billingCycle) > 12) {
+            console.log({
+              ERROR: 'Billing Cycle not on range at row ' + (i + 1) + '.',
+            })
             return res.send({
               ERROR: 'Billing Cycle not on range at row ' + (i + 1) + '.',
             })
           }
 
           if (!Date.parse(startDate)) {
+            console.log({
+              ERROR: 'Invalid Start Date format at row ' + (i + 1) + '.',
+            })
             return res.send({
               ERROR: 'Invalid Start Date format at row ' + (i + 1) + '.',
             })
           }
 
           if (!Date.parse(endDate)) {
+            console.log({
+              ERROR: 'Invalid End Date format at row ' + (i + 1) + '.',
+            })
             return res.send({
               ERROR: 'Invalid End Date format at row ' + (i + 1) + '.',
             })
@@ -101,6 +115,7 @@ router.post('/upload', upload.single(`upload`), async (req, res) => {
           }
         }
         if (records.length === 0) {
+          console.log({ MESSAGE: 'No Record Found' })
           return res.status(400).send({ MESSAGE: 'No Record Found' })
         } else {
           res.send(records)
@@ -112,12 +127,17 @@ router.post('/upload', upload.single(`upload`), async (req, res) => {
 
     } else if (fileName.includes('.txt')) {
 
+      console.log('=====> Filepath: ' + req.file.originalname)
+      console.log('==> INSIDE TXT PROCESSING <==')
+      console.log('==> Processing Request with three parameters')
+
       let data = fs.readFileSync(`./uploads/${fileName}`,
         { encoding: 'utf-8' })
 
       console.log(data)
 
       if (data === '') {
+        console.log({ ERROR: 'No request(s) to read from the input file.' })
         res.status(400).
         send({ ERROR: 'No request(s) to read from the input file.' })
       } else {
@@ -130,18 +150,28 @@ router.post('/upload', upload.single(`upload`), async (req, res) => {
           let startDate = line.substring(2, 10)
           let endDate = line.substring(10, 18)
 
+          console.log([billingCycle, startDate, endDate])
+
           if (startDate.replace(/ +/g, '').length !== 8) {
+            console.log(
+              { ERROR: 'Invalid Start Date format at row ' + (i + 1) + '.' })
             return res.send({
               ERROR: 'Invalid Start Date format at row ' + (i + 1) + '.',
             })
           }
           if (endDate.replace(/ +/g, '').length !== 8) {
+            console.log({
+              ERROR: 'Invalid End Date format at row ' + (i + 1) + '.',
+            })
             return res.send({
               ERROR: 'Invalid End Date format at row ' + (i + 1) + '.',
             })
           }
 
           if (billingCycle < 1 || billingCycle > 12) {
+            console.log({
+              ERROR: 'Billing Cycle not on range at row ' + (i + 1) + '.',
+            })
             return res.send({
               ERROR: 'Billing Cycle not on range at row ' + (i + 1) + '.',
             })
@@ -178,6 +208,7 @@ router.post('/upload', upload.single(`upload`), async (req, res) => {
           }
         }
         if (records.length === 0) {
+          console.log({ MESSAGE: 'No Record Found' })
           return res.status(400).send({ MESSAGE: 'No Record Found' })
         } else {
           res.send(records)
@@ -186,53 +217,9 @@ router.post('/upload', upload.single(`upload`), async (req, res) => {
     }
   }
   , (error, req, res, next) => {
+    console.log({ ERROR: error.message })
     res.status(400).send({ ERROR: error.message })
   },
 )
-
-//
-// const readCSV = () => {
-//   // fs.readFile(`./uploads/${fileName}`)
-// }
-//
-// const readTXT = () => {
-//
-// }
-//
-// const readCSV = (fileName, cb) => {
-//   fs.readFile(`./uploads/${fileName}`, `utf8`, async (error, data) => {
-//     console.log(data)
-// const words = data.split(",");
-// console.log(words);
-// let message = "";
-// for (let i=0; <words.length; i++){
-//  message = message + " " + words[i];
-// }
-//
-//     await wordsninja.loadDictionary()
-//     const message = wordsninja.splitSentence(data, { joinWords: true })
-//     console.log(message)
-//     cb(undefined, message.trim())
-//   })
-// }
-// //
-// // const words = []
-// // const readTXT = (fileName, cb) => {
-// //   fs.readfile(`./uploads/${fileName}`, `utf8`, async (error, data) => {
-// //     console.log(data)
-// //     // words.push (data.slice(0, 5));
-// //     // words.push (data.slice(5, 11));
-// //     // words.push (data.slice(11, 15));
-// //     // words.push (data.slice(15, 20));
-// //     // words.push (data.slice(20, 30));
-// //     // const message = `${words[0]} ${words[1]} ${words[2]} ${words[3]} ${words[4]}.`;
-// //     // }
-// //
-// //     await wordsninja.loadDictionary()
-// //     const message = wordsninja.splitSentence(data, { joinWords: true })
-// //     console.log(message)
-// //     cb(undefined, message)
-// //   })
-// // }
 
 module.exports = router
