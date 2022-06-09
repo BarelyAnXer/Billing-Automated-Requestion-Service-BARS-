@@ -1,6 +1,6 @@
 const express = require(`express`)
 const app = express()
-const upload = require(`src/uploads/upload`)
+const upload = require('./uploads/upload')
 const bars_db = require('./bars_db')
 
 app.use(express.json())

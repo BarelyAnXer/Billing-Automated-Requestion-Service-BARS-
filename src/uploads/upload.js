@@ -3,7 +3,6 @@ const multer = require('multer')
 const path = require('path')
 const fs = require('fs')
 const Billing = require('../billingmodel')
-const e = require('express')
 
 const router = express.Router()
 
