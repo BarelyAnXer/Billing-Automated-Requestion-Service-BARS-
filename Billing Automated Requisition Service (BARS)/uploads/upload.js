@@ -137,7 +137,7 @@ router.post('/upload', upload.single(`upload`), async (req, res) => {
       console.log(data)
 
       if (data === '') {
-        console.log({ ERROR: 'No request(s) to read from the input file.' })
+        console.log('[\' \']')
         res.status(400).
         send({ ERROR: 'No request(s) to read from the input file.' })
       } else {

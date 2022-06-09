@@ -1,7 +1,7 @@
 const express = require(`express`)
 const app = express()
-const upload = require(`../../BARS/Model/uploads/upload`)
-const bars_db = require('../Model/bars_db')
+const upload = require(`Billing Automated Requisition Service (BARS)/uploads/upload`)
+const bars_db = require('./bars_db')
 
 app.use(express.json())
 const port = `3000`
